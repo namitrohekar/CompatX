@@ -1,0 +1,19 @@
+# Ignore zips
+*.zip
+
+# Ignore other project folders not needed
+CompatX/
+
+# Frontend ignores
+compatx-frontend/node_modules/
+compatx-frontend/dist/
+compatx-frontend/.env
+compatx-frontend/.env.*
+!compatx-frontend/.env.example
+
+# Backend ignores
+compatx-backend/target/
+compatx-backend/src/main/resources/application.properties
+compatx-backend/src/main/resources/application.yml
+compatx-backend/src/main/resources/*.env
+compatx-backend/.env
