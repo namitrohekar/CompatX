@@ -197,18 +197,66 @@ export default function ProductCreate() {
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <input
+              {/* <input
                 {...register("price", { required: "Price required" })}
                 placeholder="Price ₹"
                 type="number"
                 className="border rounded w-full px-3 py-2 text-sm"
+              /> */}
+
+             <input
+                type="number"
+                min="1"
+                step="1"
+                placeholder="Price ₹"
+                className="border rounded w-full px-3 py-2 text-sm"
+                {...register("price", {
+                  required: "Price required",
+                  valueAsNumber: true,
+                  min: {
+                    value: 1,
+                    message: "Price must be greater than 0",
+                  },
+                  onChange: (e) => {
+                    let v = e.target.value;
+                    if (v === "") return;
+                    const n = Math.max(1, Number(v));
+                    e.target.value = n;
+                  },
+                })}
               />
-              <input
+
+
+              {/* <input
                 {...register("stock", { required: "Stock required" })}
                 placeholder="Stock"
                 type="number"
                 className="border rounded w-full px-3 py-2 text-sm"
-              />
+              /> */}
+
+
+              <input
+              type="number"
+              min="0"
+              step="1"
+              placeholder="Stock"
+              className="border rounded w-full px-3 py-2 text-sm"
+              {...register("stock", {
+                required: "Stock required",
+                valueAsNumber: true,
+                min: {
+                  value: 0,
+                  message: "Stock cannot be negative",
+                },
+                onChange: (e) => {
+                  let v = e.target.value;
+                  if (v === "") return;
+                  const n = Math.max(0, Number(v));
+                  e.target.value = n;
+                },
+              })}
+            />
+
             </div>
 
             <textarea

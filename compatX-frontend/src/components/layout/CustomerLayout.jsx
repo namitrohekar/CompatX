@@ -5,6 +5,7 @@ import Footer from "../Footer"
 import ScrollToTop from "../../lib/ScrollToTOp"
 import useLenis from "../../lib/useLenis"
 import useAuthStore from "../../stores/useAuthStore";
+import Snowfall from "react-snowfall"
 
 
 export default function CustomerLayout() {
@@ -22,6 +23,7 @@ export default function CustomerLayout() {
   }
   return (
     <div className="min-h-screen flex flex-col">
+    <Snowfall />
       <ScrollToTop />
       <CustomerNavbar />
 

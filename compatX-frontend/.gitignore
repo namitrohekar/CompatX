@@ -1,4 +1,7 @@
-# Logs
+
+# General
+
+*.zip
 logs
 *.log
 npm-debug.log*
@@ -7,22 +10,31 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Dependencies
-node_modules/
+# Frontend (Vite / React)
 
-# Build output
+node_modules/
 dist/
 dist-ssr/
-
-# Local environment files 
 .env
 .env.*
 !.env.example
 
-# Local machine configs
-*.local
 
-# Editor directories and files
+# Backend (Spring Boot)
+
+target/
+src/main/resources/application.properties
+src/main/resources/application.yml
+src/main/resources/*.env
+.env
+
+# Project structure
+
+CompatX/
+
+
+# Editor / OS
+
 .vscode/*
 !.vscode/extensions.json
 .idea/
@@ -32,3 +44,4 @@ dist-ssr/
 *.njsproj
 *.sln
 *.sw?
+*.local

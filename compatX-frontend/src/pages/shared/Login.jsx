@@ -40,19 +40,54 @@ export default function Login() {
     setErrors((p) => ({ ...p, [name]: "" }));
   };
 
-  const validate = () => {
-    const e = {};
+  // const validate = () => {
+  //   const e = {};
 
-    if (!formData.username.trim()) e.username = "Username required";
+  //   if (!formData.username.trim()) e.username = "Username required";
+  //   if (!formData.password.trim()) e.password = "Password required";
+
+  //   if (mode === "signup" && !formData.email.trim()) {
+  //     e.email = "Email required";
+  //   }
+
+  //   setErrors(e);
+  //   return Object.keys(e).length === 0;
+  // };
+
+const validate = () => {
+  const e = {};
+
+  if (!formData.username.trim()) e.username = "Username required";
+
+  // LOGIN: only check empty
+  if (mode === "login") {
     if (!formData.password.trim()) e.password = "Password required";
+  }
 
-    if (mode === "signup" && !formData.email.trim()) {
+  // SIGNUP: stronger checks (UX-level)
+  if (mode === "signup") {
+    if (!formData.email.trim()) {
       e.email = "Email required";
     }
 
-    setErrors(e);
-    return Object.keys(e).length === 0;
-  };
+    const pwd = formData.password;
+    if (!pwd) {
+      e.password = "Password required";
+    } else if (pwd.length < 6) {
+      e.password = "Password must be at least 6 characters";
+    } else if (!/[A-Z]/.test(pwd)) {
+      e.password = "Password must contain at least one capital letter";
+    } else if (!/[!@#$%^&*(),.?":{}|<>]/.test(pwd)) {
+      e.password = "Password must contain at least one special character";
+    }
+  }
+
+  setErrors(e);
+  return Object.keys(e).length === 0;
+};
+
+
+
 
   const submit = async (e) => {
     // Guard against missing event

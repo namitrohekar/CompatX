@@ -66,9 +66,19 @@ export default function ProductDetails() {
             
          
           </p>
-          <div className="mt-5 w-48 ">
-            < AddToCartButton />
-          </div>
+         <div className="mt-5 w-48">
+      {product.stock > 0 ? (
+        <AddToCartButton product={product} />
+      ) : (
+        <button
+          disabled
+          className="w-full py-2.5 rounded-lg bg-gray-400 text-white font-semibold cursor-not-allowed"
+        >
+          Out of Stock
+    </button>
+  )}
+</div>
+
         </div>
       </div>
 
