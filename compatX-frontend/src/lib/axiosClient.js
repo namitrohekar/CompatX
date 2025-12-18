@@ -3,7 +3,7 @@ import useAuthStore from "../stores/useAuthStore";
 import { toast } from "sonner";
 
 const axiosClient = axios.create({
-  baseURL: "http://localhost:8080/api/v1",
+   baseURL: import.meta.env.VITE_API_URL + "/api/v1",
 });
 
 // ============================================
