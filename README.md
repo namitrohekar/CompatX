@@ -10,7 +10,7 @@ CompatX is a feature-rich online shopping platform that I developed to provide a
 
 The application follows a modern three-tier architecture with clear separation of concerns:
 
-![Database Schema](Website%20Screenshots/ERD.png)
+![Database Schema](Website%20Screenshots/compatxERD.jpg)
 
 The ERD above shows the complete database design, including relationships between users, products, categories, orders, carts, and authentication tokens. The schema is normalized to ensure data integrity while maintaining query performance.
 
