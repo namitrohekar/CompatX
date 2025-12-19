@@ -63,7 +63,8 @@ public class SecurityConfig {
                                 "/api/v1/auth/logout-by-refresh",
                                 "/api/v1/products/**",
                                 "/api/v1/categories",
-                                "/api/v1/password-reset/**")
+                                "/api/v1/password-reset/**",
+                                "/api/v1/payments/key")
                         .permitAll()
 
                         // Admin endpoints

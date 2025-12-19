@@ -33,6 +33,9 @@ public class PaymentService {
         @Value("${stripe.secret.key}")
         private String stripeSecretKey;
 
+        @Value("${app.frontend.url}")
+        private String frontendUrl;
+
         /**
          * Creates a Stripe Checkout Session
          * 
@@ -52,23 +55,27 @@ public class PaymentService {
                 // Create Checkout Session parameters
                 SessionCreateParams params = SessionCreateParams.builder()
                                 .setMode(SessionCreateParams.Mode.PAYMENT)
-                                .setSuccessUrl("http://localhost:5173/order-success/" + orderId
+                                .setSuccessUrl(frontendUrl + "/order-success/" + orderId
                                                 + "?session_id={CHECKOUT_SESSION_ID}")
-                                .setCancelUrl("http://localhost:5173/checkout?canceled=true")
+                                .setCancelUrl(frontendUrl + "/checkout?canceled=true")
                                 .addLineItem(
-                                    SessionCreateParams.LineItem.builder()
-                                              .setQuantity(1L)
-                                              .setPriceData(
-                                    SessionCreateParams.LineItem.PriceData.builder()
-                                    	.setCurrency("inr")
-                                    	.setUnitAmount(amountInPaise)
-                                    	.setProductData(
-                                    SessionCreateParams.LineItem.PriceData.ProductData.builder()
-                                    .setName("CompatX Order #"+ orderId)
-                                    .setDescription("Payment for order #"+ orderId)
-                                    	.build())
-                                    	.build())
-                                              .build())
+                                                SessionCreateParams.LineItem.builder()
+                                                                .setQuantity(1L)
+                                                                .setPriceData(
+                                                                                SessionCreateParams.LineItem.PriceData
+                                                                                                .builder()
+                                                                                                .setCurrency("inr")
+                                                                                                .setUnitAmount(amountInPaise)
+                                                                                                .setProductData(
+                                                                                                                SessionCreateParams.LineItem.PriceData.ProductData
+                                                                                                                                .builder()
+                                                                                                                                .setName("CompatX Order #"
+                                                                                                                                                + orderId)
+                                                                                                                                .setDescription("Payment for order #"
+                                                                                                                                                + orderId)
+                                                                                                                                .build())
+                                                                                                .build())
+                                                                .build())
                                 .putMetadata("orderId", String.valueOf(orderId))
                                 .build();
 
