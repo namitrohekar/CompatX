@@ -1,5 +1,6 @@
 # Ignore zips
 *.zip
+.metadata/
 
 # Ignore other project folders not needed
 CompatX/
@@ -17,3 +18,4 @@ compatx-backend/src/main/resources/application.properties
 compatx-backend/src/main/resources/application.yml
 compatx-backend/src/main/resources/*.env
 compatx-backend/.env
+
