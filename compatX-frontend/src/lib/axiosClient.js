@@ -58,7 +58,7 @@ axiosClient.interceptors.response.use(
     if (!error.response) {
       if (!backendDownNotified) {
         backendDownNotified = true;
-        toast.error("Backend is not available. Some features may not work.");
+        toast.error("Backend is starting. Some features may be unavailable for 60–90 seconds.");
       }
       return Promise.reject(error);
     }
