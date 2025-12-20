@@ -23,7 +23,7 @@ export default function CustomerLayout() {
   }
   return (
     <div className="min-h-screen flex flex-col">
-    <Snowfall />
+    {/* <Snowfall /> */}
       <ScrollToTop />
       <CustomerNavbar />
 
