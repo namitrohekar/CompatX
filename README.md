@@ -2,11 +2,11 @@
 
 A full-stack e-commerce application built with Spring Boot and React, featuring secure authentication, payment integration, and comprehensive order management.
 
-## 🎯 Project Overview
+##  Project Overview
 
 CompatX is a feature-rich online shopping platform that I developed to provide a seamless shopping experience for customers while offering powerful management tools for administrators. The application handles everything from product browsing to secure checkout, with support for multiple payment gateways and real-time order tracking.
 
-## 🏗️ Architecture
+##  Architecture
 
 The application follows a modern three-tier architecture with clear separation of concerns:
 
@@ -14,7 +14,14 @@ The application follows a modern three-tier architecture with clear separation o
 
 The ERD above shows the complete database design, including relationships between users, products, categories, orders, carts, and authentication tokens. The schema is normalized to ensure data integrity while maintaining query performance.
 
-## 🛠️ Technology Stack
+**Key architectural decisions**:
+- DTO-based API layer to isolate persistence models from external contracts
+- Service-layer driven business logic (controllers remain thin)
+- JWT as the single source of authentication across the system
+- Role-based authorization enforced at API level (USER / ADMIN)
+
+
+##  Technology Stack
 
 ### Backend
 - **Framework**: Spring Boot 3.5.7
@@ -42,7 +49,7 @@ The ERD above shows the complete database design, including relationships betwee
 - **Stripe**: International payments
 - **Razorpay**: Indian payment gateway
 
-## ✨ Key Features
+##  Key Features
 
 ### Customer Features
 - **User Authentication**: Secure registration and login with JWT tokens
@@ -92,7 +99,7 @@ Secure multi-step checkout with address validation and payment options.
 
 *Want to see more? Check out the complete screenshot collection in the `Website Screenshots` folder, including payment integrations, admin panels, order management, and analytics dashboards.*
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### Prerequisites
 - Java 17 or higher
@@ -171,15 +178,13 @@ Secure multi-step checkout with address validation and payment options.
 
    The frontend will start on `http://localhost:5173`
 
-## 📚 API Documentation
+##  API Documentation
 
 The backend includes a comprehensive Postman collection for testing all endpoints. Import `CompatX_Postman_Collection.json` into Postman to get started.
 
 For detailed testing instructions, refer to:
-- `QUICK_START.md` - Quick testing guide
-- `POSTMAN_TESTING_GUIDE.md` - Comprehensive API documentation
 
-## 🗂️ Project Structure
+##  Project Structure
 
 ### Backend Structure
 ```
@@ -213,20 +218,15 @@ compatX-frontend/
 │   └── assets/         # Static assets
 ```
 
-## 🔐 Default Credentials
+## Deployment Notes
 
-After running the application for the first time, you can create admin and user accounts through the registration page. The first user registered can be manually promoted to admin in the database if needed.
+- Frontend is deployed on Vercel
+- Backend is deployed as a Spring Boot service
+- Environment variables are managed per environment
+- Production build uses optimized frontend assets and JWT-based auth
 
-## 🎨 Design Philosophy
 
-The UI is built with a focus on modern aesthetics and user experience:
-- **Responsive Design**: Works seamlessly across desktop, tablet, and mobile
-- **Smooth Animations**: Framer Motion for fluid transitions
-- **3D Elements**: Three.js integration for engaging visual experiences
-- **Dark Mode Ready**: Designed with dark mode support in mind
-- **Accessibility**: Semantic HTML and ARIA labels for better accessibility
-
-## 📦 Building for Production
+## Building for Production
 
 ### Backend
 ```bash
@@ -243,17 +243,17 @@ npm run build
 
 The production build will be in the `dist` folder, ready for deployment.
 
-## 🤝 Contributing
+##  Contributing
 
 This is a personal project, but suggestions and feedback are always welcome! Feel free to open an issue if you find any bugs or have ideas for improvements.
 
-## 📝 License
+##  License
 
 This project is part of my academic portfolio. Please contact me if you'd like to use any part of it.
 
-## 👨‍💻 Developer
+##  Developer
 
-Built with ❤️ by Namit Rohekar
+Built by Namit Rohekar
 
 ---
 

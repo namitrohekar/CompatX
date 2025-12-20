@@ -1,0 +1,1778 @@
+{
+	"info": {
+		"name": "CompatX API",
+		"description": "Complete API documentation for CompatX - E-commerce Platform\n\nThis collection includes all endpoints for user authentication, product management, shopping cart, order processing, payment integration (Stripe & Razorpay), and admin operations.\n\n## Getting Started\n1. Set your base URL in the environment variables (default: http://localhost:8080)\n2. Register a new user or login to get access token\n3. The access token will be automatically set for authenticated requests\n\n## Authentication\nMost endpoints require JWT authentication. After login, the access token is automatically stored and used in subsequent requests.\n\n## Environment Variables\n- `baseUrl`: API base URL\n- `accessToken`: JWT access token (auto-set after login)\n- `refreshToken`: Refresh token for session renewal\n- `userId`: Current user ID\n- `orderId`: Last created order ID",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"description": "User registration, login, token refresh, and logout endpoints",
+			"item": [
+				{
+					"name": "Register User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userName\": \"john_doe\",\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"SecurePass123!\",\n  \"role\": \"USER\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/register",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "register"]
+						},
+						"description": "Register a new user account. Role can be USER or ADMIN."
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.environment.set('accessToken', response.accessToken);",
+									"    pm.environment.set('refreshToken', response.refreshToken);",
+									"    console.log('Tokens saved successfully');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"john_doe\",\n  \"password\": \"SecurePass123!\",\n  \"rememberMe\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "auth", "login"]
+						},
+						"description": "Authenticate user and receive access & refresh tokens. Set rememberMe to true for extended session."
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.environment.set('accessToken', response.accessToken);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/auth/refresh?refreshToken={{refreshToken}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "auth", "refresh"],
+							"query": [
+								{
+									"key": "refreshToken",
+									"value": "{{refreshToken}}"
+								}
+							]
+						},
+						"description": "Get a new access token using refresh token when the current token expires."
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/auth/logout",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "auth", "logout"]
+						},
+						"description": "Logout current user and invalidate refresh token."
+					},
+					"response": []
+				},
+				{
+					"name": "Logout by Refresh Token",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/auth/logout-by-refresh?refreshToken={{refreshToken}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "auth", "logout-by-refresh"],
+							"query": [
+								{
+									"key": "refreshToken",
+									"value": "{{refreshToken}}"
+								}
+							]
+						},
+						"description": "Logout using refresh token when access token is expired."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Password Reset",
+			"description": "Password recovery endpoints",
+			"item": [
+				{
+					"name": "Request Password Reset",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"john.doe@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/password-reset/request",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "password-reset", "request"]
+						},
+						"description": "Request a password reset email. A reset link will be sent to the provided email address."
+					},
+					"response": []
+				},
+				{
+					"name": "Reset Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"token\": \"reset-token-from-email\",\n  \"newPassword\": \"NewSecurePass123!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/password-reset/reset",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "password-reset", "reset"]
+						},
+						"description": "Reset password using the token received via email."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Products - Customer",
+			"description": "Public product browsing endpoints for customers",
+			"item": [
+				{
+					"name": "Get All Products",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/products?page=0&size=12",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "products"],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "12"
+								}
+							]
+						},
+						"description": "Get paginated list of all available products."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Product by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/products/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "products", "1"]
+						},
+						"description": "Get detailed information about a specific product."
+					},
+					"response": []
+				},
+				{
+					"name": "Filter Products",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/products/filter?keyword=laptop&categoryId=1&minPrice=500&maxPrice=2000&sortField=price&sortDirection=asc&page=0&size=12",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "products", "filter"],
+							"query": [
+								{
+									"key": "keyword",
+									"value": "laptop",
+									"description": "Search keyword"
+								},
+								{
+									"key": "categoryId",
+									"value": "1",
+									"description": "Filter by category"
+								},
+								{
+									"key": "brand",
+									"value": "Dell",
+									"description": "Filter by brand",
+									"disabled": true
+								},
+								{
+									"key": "minPrice",
+									"value": "500"
+								},
+								{
+									"key": "maxPrice",
+									"value": "2000"
+								},
+								{
+									"key": "sortField",
+									"value": "price",
+									"description": "Sort by: price, name, createdAt"
+								},
+								{
+									"key": "sortDirection",
+									"value": "asc",
+									"description": "asc or desc"
+								},
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "12"
+								}
+							]
+						},
+						"description": "Advanced product filtering with multiple criteria."
+					},
+					"response": []
+				},
+				{
+					"name": "Search Products",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/products/search?keyword=gaming",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "products", "search"],
+							"query": [
+								{
+									"key": "keyword",
+									"value": "gaming"
+								}
+							]
+						},
+						"description": "Basic product search by keyword."
+					},
+					"response": []
+				},
+				{
+					"name": "Smart Search",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/products/smart-search?keyword=laptop for programming",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "products", "smart-search"],
+							"query": [
+								{
+									"key": "keyword",
+									"value": "laptop for programming"
+								}
+							]
+						},
+						"description": "Intelligent search with natural language processing."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Related Products",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/products/related?categoryId=1&excludeId=5",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "products", "related"],
+							"query": [
+								{
+									"key": "categoryId",
+									"value": "1"
+								},
+								{
+									"key": "excludeId",
+									"value": "5"
+								}
+							]
+						},
+						"description": "Get related products from the same category, excluding a specific product."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Categories",
+			"description": "Category management endpoints",
+			"item": [
+				{
+					"name": "Get All Categories (Customer)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/categories",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "categories"]
+						},
+						"description": "Get all product categories (public endpoint)."
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Categories (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/admin/get-all-categories",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "admin", "get-all-categories"]
+						},
+						"description": "Get all categories with admin privileges."
+					},
+					"response": []
+				},
+				{
+					"name": "Add Category",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"categoryName\": \"Electronics\",\n  \"description\": \"Electronic devices and accessories\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/admin/add-category",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "admin", "add-category"]
+						},
+						"description": "Create a new product category (Admin only)."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Category",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"categoryName\": \"Electronics & Gadgets\",\n  \"description\": \"Latest electronic devices and smart gadgets\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/admin/update-category/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "admin", "update-category", "1"]
+						},
+						"description": "Update an existing category (Admin only)."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Category",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/admin/delete-category/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "admin", "delete-category", "1"]
+						},
+						"description": "Delete a category (Admin only)."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Products - Admin",
+			"description": "Admin product management endpoints",
+			"item": [
+				{
+					"name": "Create Product",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"productName\": \"Dell XPS 15 Laptop\",\n  \"description\": \"High-performance laptop with Intel i7 processor, 16GB RAM, and 512GB SSD\",\n  \"price\": 1299.99,\n  \"stockQuantity\": 25,\n  \"brand\": \"Dell\",\n  \"imageUrl\": \"https://example.com/images/dell-xps-15.jpg\",\n  \"specifications\": \"15.6 inch FHD Display, Intel Core i7-11800H, NVIDIA GTX 1650\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/admin/products?categoryId=1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "admin", "products"],
+							"query": [
+								{
+									"key": "categoryId",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Create a new product (Admin only)."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Admin Products",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/admin/products?page=0&size=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "admin", "products"],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Get all products created by the logged-in admin."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Admin Product by ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/admin/products/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "admin", "products", "1"]
+						},
+						"description": "Get specific product details (Admin only)."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Product",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"productName\": \"Dell XPS 15 Laptop (Updated)\",\n  \"description\": \"High-performance laptop with upgraded specs\",\n  \"price\": 1399.99,\n  \"stockQuantity\": 30,\n  \"brand\": \"Dell\",\n  \"imageUrl\": \"https://example.com/images/dell-xps-15-new.jpg\",\n  \"specifications\": \"15.6 inch 4K Display, Intel Core i7-12700H, NVIDIA RTX 3050\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/admin/products/1?categoryId=1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "admin", "products", "1"],
+							"query": [
+								{
+									"key": "categoryId",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Update an existing product (Admin only)."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Product",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/admin/products/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "admin", "products", "1"]
+						},
+						"description": "Delete a product (Admin only)."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Product Stats",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/admin/products/stats",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "admin", "products", "stats"]
+						},
+						"description": "Get product statistics (total count, low stock items, etc.)."
+					},
+					"response": []
+				},
+				{
+					"name": "Filter Admin Products",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/admin/products/filter?keyword=laptop&minStock=10&maxStock=100&sortField=stockQuantity&sortDirection=asc&page=0&size=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "admin", "products", "filter"],
+							"query": [
+								{
+									"key": "keyword",
+									"value": "laptop"
+								},
+								{
+									"key": "categoryId",
+									"value": "1",
+									"disabled": true
+								},
+								{
+									"key": "brand",
+									"value": "Dell",
+									"disabled": true
+								},
+								{
+									"key": "minPrice",
+									"value": "500",
+									"disabled": true
+								},
+								{
+									"key": "maxPrice",
+									"value": "2000",
+									"disabled": true
+								},
+								{
+									"key": "minStock",
+									"value": "10"
+								},
+								{
+									"key": "maxStock",
+									"value": "100"
+								},
+								{
+									"key": "sortField",
+									"value": "stockQuantity"
+								},
+								{
+									"key": "sortDirection",
+									"value": "asc"
+								},
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Advanced filtering for admin product management including stock levels."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Shopping Cart",
+			"description": "Shopping cart management for users",
+			"item": [
+				{
+					"name": "Get Cart",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/user/cart",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "user", "cart"]
+						},
+						"description": "Get current user's shopping cart with all items."
+					},
+					"response": []
+				},
+				{
+					"name": "Add to Cart",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"productId\": 1,\n  \"quantity\": 2\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/user/cart/add",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "user", "cart", "add"]
+						},
+						"description": "Add a product to the shopping cart."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Cart Item",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"quantity\": 3\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/user/cart/items/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "user", "cart", "items", "1"]
+						},
+						"description": "Update quantity of a cart item."
+					},
+					"response": []
+				},
+				{
+					"name": "Remove Cart Item",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/user/cart/items/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "user", "cart", "items", "1"]
+						},
+						"description": "Remove a specific item from cart."
+					},
+					"response": []
+				},
+				{
+					"name": "Clear Cart",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/user/cart",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "user", "cart"]
+						},
+						"description": "Remove all items from cart."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Cart Item Count",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/user/cart/count",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "user", "cart", "count"]
+						},
+						"description": "Get total number of items in cart."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Orders - User",
+			"description": "Order management for customers",
+			"item": [
+				{
+					"name": "Get Order Preview",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/user/orders/preview",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "user", "orders", "preview"]
+						},
+						"description": "Preview order details before placing (based on current cart)."
+					},
+					"response": []
+				},
+				{
+					"name": "Place Order",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.environment.set('orderId', response.orderId);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"shippingAddress\": {\n    \"fullName\": \"John Doe\",\n    \"phoneNumber\": \"+1-555-0123\",\n    \"addressLine1\": \"123 Main Street\",\n    \"addressLine2\": \"Apt 4B\",\n    \"city\": \"New York\",\n    \"state\": \"NY\",\n    \"pincode\": \"10001\",\n    \"country\": \"USA\"\n  },\n  \"paymentMethod\": \"ONLINE\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/user/orders",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "user", "orders"]
+						},
+						"description": "Place a new order. Payment method can be ONLINE or COD (Cash on Delivery)."
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Orders",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/user/orders?page=0&size=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "user", "orders"],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Get all orders for the current user."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Order by ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/user/orders/{{orderId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "user", "orders", "{{orderId}}"]
+						},
+						"description": "Get details of a specific order."
+					},
+					"response": []
+				},
+				{
+					"name": "Cancel Order",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"reason\": \"Changed my mind\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/user/orders/{{orderId}}/cancel",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "user", "orders", "{{orderId}}", "cancel"]
+						},
+						"description": "Cancel an order with a reason."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Orders - Admin",
+			"description": "Admin order management endpoints",
+			"item": [
+				{
+					"name": "Get All Orders",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/admin/orders?status=PENDING&sortField=createdAt&sortDirection=desc&page=0&size=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "admin", "orders"],
+							"query": [
+								{
+									"key": "status",
+									"value": "PENDING",
+									"description": "PENDING, CONFIRMED, SHIPPED, DELIVERED, CANCELLED"
+								},
+								{
+									"key": "keyword",
+									"value": "search term",
+									"disabled": true
+								},
+								{
+									"key": "sortField",
+									"value": "createdAt"
+								},
+								{
+									"key": "sortDirection",
+									"value": "desc"
+								},
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Get all orders with filtering and pagination (Admin only)."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Order by ID (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/admin/orders/{{orderId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "admin", "orders", "{{orderId}}"]
+						},
+						"description": "Get detailed order information (Admin only)."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Order Status",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"SHIPPED\",\n  \"notes\": \"Package shipped via FedEx, tracking number: 1234567890\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/admin/orders/{{orderId}}/status",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "admin", "orders", "{{orderId}}", "status"]
+						},
+						"description": "Update order status (Admin only). Status: PENDING, CONFIRMED, SHIPPED, DELIVERED, CANCELLED."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Order Stats",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/admin/orders/stats",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "admin", "orders", "stats"]
+						},
+						"description": "Get order statistics (total orders, revenue, etc.)."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Orders by Status",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/admin/orders/status/PENDING?page=0&size=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "admin", "orders", "status", "PENDING"],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Get orders filtered by specific status."
+					},
+					"response": []
+				},
+				{
+					"name": "Verify Delivery OTP",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"otp\": \"123456\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/admin/orders/{{orderId}}/verify-delivery",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "admin", "orders", "{{orderId}}", "verify-delivery"]
+						},
+						"description": "Verify delivery using OTP provided by customer."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Payments",
+			"description": "Payment processing with Stripe and Razorpay",
+			"item": [
+				{
+					"name": "Create Stripe Checkout Session",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"orderId\": {{orderId}},\n  \"amount\": 1299.99\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/payments/create-checkout-session",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "payments", "create-checkout-session"]
+						},
+						"description": "Create a Stripe checkout session for online payment."
+					},
+					"response": []
+				},
+				{
+					"name": "Create Razorpay Order",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"orderId\": {{orderId}},\n  \"amount\": 1299.99\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/payments/create-order",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "payments", "create-order"]
+						},
+						"description": "Create a Razorpay payment order."
+					},
+					"response": []
+				},
+				{
+					"name": "Verify Razorpay Payment",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"orderId\": {{orderId}},\n  \"razorpayOrderId\": \"order_xyz123\",\n  \"razorpayPaymentId\": \"pay_abc456\",\n  \"razorpaySignature\": \"signature_hash_here\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/payments/verify",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "payments", "verify"]
+						},
+						"description": "Verify Razorpay payment signature after successful payment."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Razorpay Key",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/payments/key",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "payments", "key"]
+						},
+						"description": "Get Razorpay public key for frontend integration."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User Profile",
+			"description": "User profile management",
+			"item": [
+				{
+					"name": "Get My Profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/user/profile",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "user", "profile"]
+						},
+						"description": "Get current user's profile information."
+					},
+					"response": []
+				},
+				{
+					"name": "Create or Update Profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"phoneNumber\": \"+1-555-0123\",\n  \"dateOfBirth\": \"1990-05-15\",\n  \"gender\": \"MALE\",\n  \"addressLine1\": \"123 Main Street\",\n  \"addressLine2\": \"Apt 4B\",\n  \"city\": \"New York\",\n  \"state\": \"NY\",\n  \"pincode\": \"10001\",\n  \"country\": \"USA\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/user/profile",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "user", "profile"]
+						},
+						"description": "Create or update user profile. Gender options: MALE, FEMALE, OTHER, PREFER_NOT_TO_SAY."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"phoneNumber\": \"+1-555-9999\",\n  \"dateOfBirth\": \"1990-05-15\",\n  \"gender\": \"MALE\",\n  \"addressLine1\": \"456 Oak Avenue\",\n  \"city\": \"Los Angeles\",\n  \"state\": \"CA\",\n  \"pincode\": \"90001\",\n  \"country\": \"USA\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/user/profile",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "user", "profile"]
+						},
+						"description": "Update existing profile information."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/user/profile",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "user", "profile"]
+						},
+						"description": "Delete user profile."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Admin Profile",
+			"description": "Admin profile management endpoints",
+			"item": [
+				{
+					"name": "Get All Profiles",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/admin/profiles?page=0&size=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "admin", "profiles"],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Get all user profiles with pagination (Admin only)."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Profile by User ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/admin/profiles/user/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "admin", "profiles", "user", "1"]
+						},
+						"description": "Get profile for a specific user (Admin only)."
+					},
+					"response": []
+				},
+				{
+					"name": "Search Profiles",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/admin/profiles/search?city=New York&state=NY",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "admin", "profiles", "search"],
+							"query": [
+								{
+									"key": "city",
+									"value": "New York"
+								},
+								{
+									"key": "state",
+									"value": "NY"
+								},
+								{
+									"key": "pincode",
+									"value": "10001",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Search profiles by location criteria (Admin only)."
+					},
+					"response": []
+				},
+				{
+					"name": "Update User Profile (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"firstName\": \"Jane\",\n  \"lastName\": \"Smith\",\n  \"phoneNumber\": \"+1-555-7777\",\n  \"city\": \"Boston\",\n  \"state\": \"MA\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/admin/profiles/user/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "admin", "profiles", "user", "1"]
+						},
+						"description": "Update any user's profile (Admin only)."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User Profile (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/admin/profiles/user/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "admin", "profiles", "user", "1"]
+						},
+						"description": "Delete a user's profile (Admin only)."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Profile Stats",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/admin/profiles/stats",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "admin", "profiles", "stats"]
+						},
+						"description": "Get profile statistics (Admin only)."
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "accessToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "refreshToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "orderId",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
