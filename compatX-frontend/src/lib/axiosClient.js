@@ -2,8 +2,18 @@ import axios from "axios";
 import useAuthStore from "../stores/useAuthStore";
 import { toast } from "sonner";
 
+// const axiosClient = axios.create({
+//   baseURL: import.meta.env.VITE_API_URL + "/api/v1",
+// });
+
+const useAws = import.meta.env.VITE_USE_AWS === "true";
+
+const baseApiUrl = useAws
+  ? import.meta.env.VITE_API_URL_AWS
+  : import.meta.env.VITE_API_URL_RENDER;
+
 const axiosClient = axios.create({
-  baseURL: import.meta.env.VITE_API_URL + "/api/v1",
+  baseURL: baseApiUrl + "/api/v1",
 });
 
 
@@ -15,7 +25,6 @@ let backendDownNotified = false;
 const resetRefreshPromise = () => {
   refreshPromise = null;
 };
-
 
 // REQUEST INTERCEPTOR
 // Attach Bearer token (except auth endpoints)
@@ -44,7 +53,6 @@ axiosClient.interceptors.response.use(
   async (error) => {
     const original = error.config;
 
-
     // BACKEND DOWN / NETWORK ERROR
 
     if (!error.response) {
@@ -57,7 +65,6 @@ axiosClient.interceptors.response.use(
 
     const status = error.response.status;
 
-
     // AUTH ENDPOINTS — LET COMPONENTS HANDLE ERRORS
 
     const isAuthEndpoint =
@@ -68,9 +75,8 @@ axiosClient.interceptors.response.use(
       return Promise.reject(error);
     }
 
-
     // 401 UNAUTHORIZED — TOKEN REFRESH FLOW
-    
+
     if (status === 401 && !original._retry) {
       original._retry = true;
 
@@ -106,13 +112,11 @@ axiosClient.interceptors.response.use(
 
           updateAccessToken(res.data.accessToken);
           return res.data.accessToken;
-
         } catch (err) {
           if (err.response?.status === 401 || err.response?.status === 403) {
             logout();
           }
           throw err;
-
         } finally {
           resetRefreshPromise();
         }
@@ -127,9 +131,8 @@ axiosClient.interceptors.response.use(
       }
     }
 
-
     // 5XX SERVER ERRORS — NO RETRY, NO SPAM
-  
+
     if (status >= 500) {
       if (!backendDownNotified) {
         backendDownNotified = true;
@@ -137,7 +140,6 @@ axiosClient.interceptors.response.use(
       }
       return Promise.reject(error);
     }
-
 
     // OTHER ERRORS (400, 403, 404)
     // Let components handle them
