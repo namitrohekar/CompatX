@@ -251,13 +251,11 @@ export default function Checkout() {
     const orderItems = orderData?.orderItems || orderData?.items || orderData?.cartItems || [];
     const hasItems = orderItems.length > 0;
 
-    // Calculate totals if not provided by backend
+    // Calculate totals - always recalculate to ensure consistency with Cart
     let subtotal = orderData?.subtotal || orderData?.totalPrice || 0;
-    let taxAmount = orderData?.taxAmount || (subtotal * 0.18);
-    let shippingCharges = orderData?.shippingCharges !== undefined
-        ? orderData.shippingCharges
-        : (subtotal >= 999 ? 0 : 49);
-    let totalAmount = orderData?.totalAmount || (subtotal + taxAmount + shippingCharges);
+    let taxAmount = subtotal * 0.18;
+    let shippingCharges = subtotal >= 999 ? 0 : 49;
+    let totalAmount = subtotal + taxAmount + shippingCharges;
 
     console.log(" Order Data:", orderData);
     console.log(" Items:", orderItems);
